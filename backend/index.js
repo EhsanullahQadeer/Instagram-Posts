@@ -48,18 +48,31 @@ app.get("/api/instagram", async (req, res) => {
     await axios.get(changeIpUrl);
     const instagramData = instagramResponse.data.data.user.edge_owner_to_timeline_media.edges;
     let imagesUrlArr = instagramData.map(item => {
-      return item.node.thumbnail_resources[3].src
+      return item.node.thumbnail_resources[3].src;
     });
-    res.status(200).json(imagesUrlArr);
+    const formatData = {
+      imagesData: imagesUrlArr,
+      accountId: instagramResponse.data.data.user.id,
+    }
+    res.status(200).json(formatData);
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+app.post('/api/rateImage', async(req, res)=> {
+  console.log(req)
+  // const {username, account_id, user_id} = req.body;
+  // if (username && account_id && user_id) {
+  //   res.status(201).json({"status": "success"})
+  // } else {
+  //   res.status(400).json({"message": "All field required"})
+  // }
+})
 
 // fetch user data
 app.get("/api/userdata", (req, res) => {
-  const sqlQuery = "SELECT * FROM users";
+  const sqlQuery = "SELECT * FROM sort.input_table;";
   db.query(sqlQuery, (err, results) => {
     if (err) {
       res.status(500).json({ error: "Internal Server Error" });
@@ -69,17 +82,6 @@ app.get("/api/userdata", (req, res) => {
   });
 });
 
-// fetch table data
-app.get("/api/inputdata", (req, res) => {
-  const sqlQuery = "SELECT * FROM output_table";
-  db.query(sqlQuery, (err, results) => {
-    if (err) {
-      res.status(500).json({ error: "Internal Server Error" });
-    } else {
-      res.json(results);
-    }
-  });
-});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

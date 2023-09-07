@@ -20,3 +20,15 @@ export const fetchInstagramData = async (user) => {
       console.error('Error fetching data:', error);
   }
 };
+export const rateImage = async (data, accountId) => {
+  try {
+      const response = await axios.post('http://localhost:3001/api/rateImage', {
+        username: data.username,
+        user_id: data.user_id,
+        account_id: accountId,
+      });
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching data:', error);
+  }
+};
