@@ -35,7 +35,7 @@
   text-align: center;
 }
 .row-header {
-  height: 33.3%;
+  height: 33%;
 }
 .row {
   height: 100%;
@@ -76,6 +76,9 @@
 @media (max-width: 820px) {
   .img-block {
     width: 27%;
+  }
+  .row-header {
+    height: 32.7%;
   }
 }
 @media (max-width: 700px) {

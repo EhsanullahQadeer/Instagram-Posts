@@ -44,7 +44,7 @@ export const InstagramViewImages = () => {
             output_table: "output_table",
             proxy: "http://user26:8PFNYUSu@176.9.113.112:11026",
             slug: "86aacb40",
-            name: "ehsanullah",
+            name: "itsuswa9",
         },
     ];
     useEffect(() => {
@@ -158,7 +158,7 @@ export const InstagramViewImages = () => {
                         <div className='row'>
                             {instagramData?.map((item, idx) => {
                                 return <div key={idx} className='img-block'>
-                                    <img src={item} alt='insta-img' className='img-styled' />
+                                    <img crossorigin="anonymous" src={item} alt='insta-img' className='img-styled' />
                                 </div>
                             })}
                         </div>

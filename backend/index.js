@@ -33,7 +33,7 @@ db.connect((err) => {
 const agent = new HttpsProxyAgent("http://user26:8PFNYUSu@176.9.113.112:11026");
 // api getting images from instagram
 app.get("/api/instagram", async (req, res) => {
-  let user = "ehsanullahqadeer"
+ const {user} = req.query;
   let changeIpUrl = 'http://176.9.113.112:11126/changeip/client/23108983551657110673';
   try {
     const instagramResponse = await axios({
