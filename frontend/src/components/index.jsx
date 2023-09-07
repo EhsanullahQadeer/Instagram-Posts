@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../App.css';
-import axios from 'axios';
 import { fetchInstagramData, fetchUserData } from '../api';
 
 export const InstagramViewImages = () => {
@@ -119,13 +118,9 @@ export const InstagramViewImages = () => {
         setTimer(true);
     }
     const getPreviousUser = () => {
-        if (currentIndex === 0) {
-            setCurrentIndex(dummyData.length - 1);
-            getInstaData(dummyData.length - 1);
-        } else {
-            setCurrentIndex(currentIndex - 1);
-            getInstaData(currentIndex - 1);
-        }
+        const newIndex = currentIndex === 0 ? dummyData.length - 1 : currentIndex - 1;
+        setCurrentIndex(newIndex);
+        getInstaData(newIndex);
     };
     const currentObject = dummyData[currentIndex];
     const getProfilesShowed = (item) => {
@@ -137,6 +132,7 @@ export const InstagramViewImages = () => {
             return index + 1;
         }
     }
+    console.log(instagramData)
     return (
         <>
             {isFirstTime ? <div className='header'>
@@ -161,7 +157,7 @@ export const InstagramViewImages = () => {
                         <div className='row'>
                             {instagramData?.map((item, idx) => {
                                 return <div key={idx} className='img-block'>
-                                    <img src={item?.node?.thumbnail_src} alt='insta-img' className='img-styled' />
+                                    <img src={item} alt='insta-img' className='img-styled' />
                                 </div>
                             })}
                         </div>
