@@ -10,14 +10,14 @@ export const InstagramViewImages = () => {
     const [loading, setLoading] = useState(false);
     const [instagramData, setInstagramData] = useState([]);
     const [usersData, setUsersData] = useState([]);
-    const [userInfo, setUserInfo] = useState(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const currentShowingRef = useRef(0);
-
+    const [userInfo, setUserInfo] = useState({});
+    const [currentIndex, setCurrentIndex] = useState(userInfo.last_id);
+    const currentShowingRef = useRef(userInfo.last_id);
+    const slug = "86aacb40";
     const getUserData = async () => {
-      const [data, userInformation] = await Promise.all([fetchTableData(), fetchUserData('86aacb40')]);
-      setUsersData(data);
-      setUserInfo(userInformation);
+        const [data, userInformation] = await Promise.all([fetchTableData(), fetchUserData(slug)]);
+        setUsersData(data);
+        setUserInfo(userInformation);
     }
     useEffect(() => {
         setIsFirstTime(true);
@@ -30,20 +30,19 @@ export const InstagramViewImages = () => {
     useEffect(() => {
         let intervalId;
         const getData = async () => {
-            console.log(currentShowingRef)
             if (usersData[currentShowingRef.current].last_id === 0) {
                 clearInterval(intervalId);
                 setTimer(false);
             } else {
                 currentShowingRef.current = currentShowingRef.current + 1;
-                const response = await loadNextImagesData(usersData[currentShowingRef.current].username);
+                const response = await loadNextImagesData(usersData[currentShowingRef.current].username, slug);
                 setInstagramData(response);
+                setCurrentIndex(pev=> pev +1);
                 setRBtnActive(false);
-                setCurrentIndex(prev => prev + 1);
             }
         };
         if (!pBtnActive && timer) {
-            intervalId = setInterval(getData, 3000);
+            intervalId = setInterval(getData, `${userInfo.change_time}000`);
         } else {
             clearInterval(intervalId);
             setTimer(false);
@@ -56,7 +55,7 @@ export const InstagramViewImages = () => {
     const handleOnClick = async () => {
         setLoading(true);
         setIsFirstTime(false);
-        const response = await loadNextImagesData(usersData[0]?.username);
+        const response = await loadNextImagesData(usersData[userInfo]?.username, slug);
         currentShowingRef.current = 0;
         setInstagramData(response);
         setTimer(true);
@@ -84,22 +83,21 @@ export const InstagramViewImages = () => {
     }, [pBtnActive, rBtnActive]);
     const getInstaData = async (index) => {
         const response = await loadPerviousImagesData(usersData[index]?.username);
-        currentShowingRef.current = index;
         setCurrentIndex(index);
         setInstagramData(response);
         setTimer(true);
     }
     const getPreviousUser = () => {
-        const index = userInfo.last_id === 0 ? usersData.length - 1 : userInfo.last_id - 1;
+        const index = currentIndex === 0 ? usersData.length - 1 : currentIndex - 1;
         getInstaData(index);
         setRBtnActive(false);
     };
     const currentObject = usersData[currentIndex];
     const getProfilesShowed = () => {
-            const value = ((userInfo.last_id) / usersData.length) * 100;
-            return parseInt(value);
+        const value = ((userInfo.last_id) / usersData.length) * 100;
+        return parseInt(value);
     }
-    const handleClickOnR = async ()=> {
+    const handleClickOnR = async () => {
         setRBtnActive(true);
         await rateImage(currentObject, instagramData?.accountId);
     }
