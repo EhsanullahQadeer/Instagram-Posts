@@ -32,7 +32,7 @@ db.connect((err) => {
 // 
 const agent = new HttpsProxyAgent("http://user26:8PFNYUSu@176.9.113.112:11026");
 // api getting images from instagram
-app.get("/api/instagram", async (req, res) => {
+app.get("/api/getNextImages", async (req, res) => {
  const {user} = req.query;
   let changeIpUrl = 'http://176.9.113.112:11126/changeip/client/23108983551657110673';
   try {
@@ -54,7 +54,35 @@ app.get("/api/instagram", async (req, res) => {
       imagesData: imagesUrlArr,
       accountId: instagramResponse.data.data.user.id,
     }
-    
+    res.status(200).json(formatData);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("api/getPreviousImages", async (req, res) => {
+ const {user} = req.query;
+  let changeIpUrl = 'http://176.9.113.112:11126/changeip/client/23108983551657110673';
+  try {
+    const instagramResponse = await axios({
+      method: 'get',
+      httpsAgent: agent,
+      url: `https://i.instagram.com/api/v1/users/web_profile_info/?username=${user}`,
+      headers: {
+        "x-ig-app-id": "1217981644879628",
+      },
+    })
+    // change ip to prevent from blocking by th instagram
+    await axios.get(changeIpUrl);
+    const instagramData = instagramResponse.data.data.user.edge_owner_to_timeline_media.edges;
+    let imagesUrlArr = instagramData.map(item => {
+      return item.node.thumbnail_resources[3].src;
+    });
+    const formatData = {
+      imagesData: imagesUrlArr,
+      accountId: instagramResponse.data.data.user.id,
+    }
     res.status(200).json(formatData);
   } catch (error) {
     console.log(error)
@@ -73,7 +101,7 @@ app.post('/api/rateImage', async(req, res)=> {
 
 // fetch table data
 app.get("/api/input-table", (req, res) => {
-  const sqlQuery = "SELECT * FROM sort.input_table;";
+  const sqlQuery = "SELECT * FROM sort.input_table";
   db.query(sqlQuery, (err, results) => {
     if (err) {
       res.status(500).json({ error: "Internal Server Error" });

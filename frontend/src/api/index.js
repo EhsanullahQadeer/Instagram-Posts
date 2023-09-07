@@ -20,9 +20,21 @@ export const fetchUserData = async (slug) => {
       console.error('Error fetching data:', error);
   }
 };
-export const fetchInstagramData = async (user) => {
+export const loadNextImagesData = async (user) => {
   try {
-      const response = await axios.get('http://localhost:3001/api/instagram', {
+      const response = await axios.get('http://localhost:3001/api/getNextImages', {
+        params: {
+          user: `${user}`,
+        },
+      });
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching data:', error);
+  }
+};
+export const loadPerviousImagesData = async (user) => {
+  try {
+      const response = await axios.get('http://localhost:3001/api/getNextImages', {
         params: {
           user: `${user}`,
         },

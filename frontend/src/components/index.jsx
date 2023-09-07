@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../App.css';
-import { fetchInstagramData, fetchUserData, fetchTableData, rateImage } from '../api';
+import { loadNextImagesData, loadPerviousImagesData, fetchUserData, fetchTableData, rateImage } from '../api';
 
 export const InstagramViewImages = () => {
     const [isFirstTime, setIsFirstTime] = useState(true);
@@ -11,7 +11,6 @@ export const InstagramViewImages = () => {
     const [instagramData, setInstagramData] = useState([]);
     const [usersData, setUsersData] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
-    console.log(userInfo);
     const [currentIndex, setCurrentIndex] = useState(0);
     const currentShowingRef = useRef(0);
 
@@ -37,14 +36,14 @@ export const InstagramViewImages = () => {
                 setTimer(false);
             } else {
                 currentShowingRef.current = currentShowingRef.current + 1;
-                const response = await fetchInstagramData(usersData[currentShowingRef.current].username);
+                const response = await loadNextImagesData(usersData[currentShowingRef.current].username);
                 setInstagramData(response);
                 setRBtnActive(false);
                 setCurrentIndex(prev => prev + 1);
             }
         };
         if (!pBtnActive && timer) {
-            intervalId = setInterval(getData, 5000);
+            intervalId = setInterval(getData, 3000);
         } else {
             clearInterval(intervalId);
             setTimer(false);
@@ -57,7 +56,7 @@ export const InstagramViewImages = () => {
     const handleOnClick = async () => {
         setLoading(true);
         setIsFirstTime(false);
-        const response = await fetchInstagramData(usersData[0]?.username);
+        const response = await loadNextImagesData(usersData[0]?.username);
         currentShowingRef.current = 0;
         setInstagramData(response);
         setTimer(true);
@@ -84,26 +83,21 @@ export const InstagramViewImages = () => {
         };
     }, [pBtnActive, rBtnActive]);
     const getInstaData = async (index) => {
-        const response = await fetchInstagramData(usersData[index]?.username);
+        const response = await loadPerviousImagesData(usersData[index]?.username);
         currentShowingRef.current = index;
         setCurrentIndex(index);
         setInstagramData(response);
         setTimer(true);
     }
     const getPreviousUser = () => {
-        const index = currentIndex === 0 ? usersData.length - 1 : currentIndex - 1;
+        const index = userInfo.last_id === 0 ? usersData.length - 1 : userInfo.last_id - 1;
         getInstaData(index);
         setRBtnActive(false);
     };
     const currentObject = usersData[currentIndex];
-    const getProfilesShowed = (item) => {
-        const index = usersData.findIndex(item => item?.username === currentObject?.username);
-        if (item === 'percent') {
-            const value = ((index + 1) / usersData.length) * 100;
+    const getProfilesShowed = () => {
+            const value = ((userInfo.last_id) / usersData.length) * 100;
             return parseInt(value);
-        } else {
-            return index + 1;
-        }
     }
     const handleClickOnR = async ()=> {
         setRBtnActive(true);
@@ -121,9 +115,9 @@ export const InstagramViewImages = () => {
                     </div>
                     <div className='menu2'>
                         <button onClick={handleClickOnR} className={`menu-btn ${rBtnActive && 'btn-active'}`}>R</button>
-                        <div>Profiles showed: {getProfilesShowed('value')}</div>
+                        <div>Profiles showed: {userInfo?.last_id}</div>
                         <div>%: {getProfilesShowed('percent')}</div>
-                        <div>ID: {currentObject?.user_id}</div>
+                        <div>ID: {userInfo?.id}</div>
                         <div>DB: 16290</div>
                         <div>Total done: 1</div>
                     </div>
