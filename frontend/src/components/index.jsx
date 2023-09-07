@@ -44,7 +44,7 @@ export const InstagramViewImages = () => {
             output_table: "output_table",
             proxy: "http://user26:8PFNYUSu@176.9.113.112:11026",
             slug: "86aacb40",
-            name: "itsuswa9",
+            name: "ehsanullahqadeer",
         },
     ];
     useEffect(() => {
