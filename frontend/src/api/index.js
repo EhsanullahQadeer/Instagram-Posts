@@ -1,8 +1,20 @@
 import axios from 'axios';
 
-export const fetchUserData = async () => {
+export const fetchTableData = async () => {
   try {
-      const response = await axios.get('http://localhost:3001/api/userdata');
+      const response = await axios.get('http://localhost:3001/api/input-table');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching data:', error);
+  }
+};
+export const fetchUserData = async (slug) => {
+  try {
+      const response = await axios.get('http://localhost:3001/api/userdata', {
+        params: {
+          slug: slug,
+        }
+      });
       return response.data;
   } catch (error) {
       console.error('Error fetching data:', error);

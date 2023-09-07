@@ -54,6 +54,7 @@ app.get("/api/instagram", async (req, res) => {
       imagesData: imagesUrlArr,
       accountId: instagramResponse.data.data.user.id,
     }
+    
     res.status(200).json(formatData);
   } catch (error) {
     console.log(error)
@@ -70,14 +71,28 @@ app.post('/api/rateImage', async(req, res)=> {
   // }
 })
 
-// fetch user data
-app.get("/api/userdata", (req, res) => {
+// fetch table data
+app.get("/api/input-table", (req, res) => {
   const sqlQuery = "SELECT * FROM sort.input_table;";
   db.query(sqlQuery, (err, results) => {
     if (err) {
       res.status(500).json({ error: "Internal Server Error" });
     } else {
       res.json(results);
+    }
+  });
+});
+
+// fetch user data
+app.get("/api/userdata", (req, res) => {
+ const {slug} = req.query;
+  const sqlQuery = "SELECT * FROM users";
+  db.query(sqlQuery, (err, results) => {
+    if (err) {
+      res.status(500).json({ error: "Internal Server Error" });
+    } else {
+      const findUserFromDB = results.find(item => item.slug === slug);
+      res.json(findUserFromDB);
     }
   });
 });
