@@ -62,13 +62,15 @@ export const InstagramViewImages = () => {
     useEffect(() => {
         let intervalId;
         const getData = async () => {
+            console.log(currentShowingRef)
             if (dummyData[currentShowingRef.current].last_id === 0) {
                 clearInterval(intervalId);
+                setTimer(false);
             } else {
                 currentShowingRef.current = currentShowingRef.current + 1;
                 const response = await fetchInstagramData(dummyData[currentShowingRef.current].name);
                 setInstagramData(response);
-                setCurrentIndex(prev=> prev + 1);
+                setCurrentIndex(prev => prev + 1);
             }
         };
         if (!pBtnActive && timer) {
@@ -114,13 +116,13 @@ export const InstagramViewImages = () => {
     const getInstaData = async (index) => {
         const response = await fetchInstagramData(dummyData[index]?.name);
         currentShowingRef.current = index;
+        setCurrentIndex(index);
         setInstagramData(response);
         setTimer(true);
     }
     const getPreviousUser = () => {
-        const newIndex = currentIndex === 0 ? dummyData.length - 1 : currentIndex - 1;
-        setCurrentIndex(newIndex);
-        getInstaData(newIndex);
+        const index = currentIndex === 0 ? dummyData.length - 1 : currentIndex - 1;
+        getInstaData(index);
     };
     const currentObject = dummyData[currentIndex];
     const getProfilesShowed = (item) => {
@@ -132,7 +134,6 @@ export const InstagramViewImages = () => {
             return index + 1;
         }
     }
-    console.log(instagramData)
     return (
         <>
             {isFirstTime ? <div className='header'>
@@ -147,7 +148,7 @@ export const InstagramViewImages = () => {
                         <button onClick={() => setRBtnActive(true)} className={`menu-btn ${rBtnActive && 'btn-active'}`}>R</button>
                         <div>Profiles showed: {getProfilesShowed('value')}</div>
                         <div>%: {getProfilesShowed('percent')}</div>
-                        <div>ID: {currentObject.id}</div>
+                        <div>ID: {currentObject?.id}</div>
                         <div>DB: 16290</div>
                         <div>Total done: 1</div>
                     </div>
