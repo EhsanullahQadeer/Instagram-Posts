@@ -20,24 +20,13 @@ export const fetchUserData = async (slug) => {
       console.error('Error fetching data:', error);
   }
 };
-export const loadNextImagesData = async (user, slug) => {
+export const loadImagesData = async (user, slug, action) => {
   try {
-      const response = await axios.get('http://localhost:3001/api/getNextImages', {
+      const response = await axios.get('http://localhost:3001/api/getImages', {
         params: {
           user: user,
           slug: slug,
-        },
-      });
-      return response.data;
-  } catch (error) {
-      console.error('Error fetching data:', error);
-  }
-};
-export const loadPerviousImagesData = async (user) => {
-  try {
-      const response = await axios.get('http://localhost:3001/api/getNextImages', {
-        params: {
-          user: `${user}`,
+          action: action,
         },
       });
       return response.data;

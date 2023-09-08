@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const axios = require("axios");
 const cors = require("cors");
 const https = require("https");
+const bodyParser = require("body-parser");
 const { HttpsProxyAgent } = require("https-proxy-agent");
 
 const app = express();
@@ -10,7 +11,7 @@ const port = 3001;
 const corsOptions = {
   origin: "http://localhost:3000",
 };
-
+app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
 const db = mysql.createConnection({
@@ -31,35 +32,35 @@ db.connect((err) => {
 //
 const agent = new HttpsProxyAgent("http://user26:8PFNYUSu@176.9.113.112:11026");
 
-const updateUserQuery = (slug) => {
+const updateUserQuery = (slug, action, callback) => {
   const selectQuery = "SELECT * FROM users";
   db.query(selectQuery, (selectErr, selectResults) => {
     if (selectErr) {
-      console.error("Internal Server Error:", selectErr);
+      callback(null, "Internal Server Error");
     } else {
       const userToUpdate = selectResults.find((item) => item.slug === slug);
-      if (userToUpdate) {
+      if (userToUpdate && action === "next") {
         const newLastId = userToUpdate.last_id + 1;
         const updateQuery = `UPDATE users SET last_id = ${newLastId} WHERE id = ${userToUpdate.id};`;
-
         db.query(updateQuery, (updateErr, updateResult) => {
           if (updateErr) {
-            console.error("Error updating last_id in the database:", updateErr);
+            callback(null, "Error updating database");
           } else {
-            console.log(updateQuery);
+            callback(newLastId, null);
           }
         });
+      } else if (userToUpdate && action === "previous") {
+        callback(userToUpdate.last_id, null);
       } else {
-        return newLastId;
+        callback(null, "User not found");
       }
     }
   });
 };
 
-
 // api getting images from instagram
-app.get("/api/getNextImages", async (req, res) => {
-  const { user, slug } = req.query;
+app.get("/api/getImages", async (req, res) => {
+  const { user, slug, action } = req.query;
   let changeIpUrl =
     "http://176.9.113.112:11126/changeip/client/23108983551657110673";
   try {
@@ -78,56 +79,38 @@ app.get("/api/getNextImages", async (req, res) => {
     let imagesUrlArr = instagramData.map((item) => {
       return item.node.thumbnail_resources[3].src;
     });
-    const dbId = updateUserQuery(slug);
-    const formatData = {
-      imagesData: imagesUrlArr,
-      accountId: instagramResponse.data.data.user.id,
-    };
-    res.status(200).json(formatData);
+    updateUserQuery(slug, action, (last_id, error) => {
+      const formatData = {
+        imagesData: imagesUrlArr,
+        accountId: instagramResponse.data.data.user.id,
+        last_id: last_id,
+      };
+      res.status(200).json(formatData);
+    });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.get("api/getPreviousImages", async (req, res) => {
-  const { user } = req.query;
-  let changeIpUrl =
-    "http://176.9.113.112:11126/changeip/client/23108983551657110673";
-  try {
-    const instagramResponse = await axios({
-      method: "get",
-      httpsAgent: agent,
-      url: `https://i.instagram.com/api/v1/users/web_profile_info/?username=${user}`,
-      headers: {
-        "x-ig-app-id": "1217981644879628",
-      },
-    });
-    // change ip to prevent from blocking by th instagram
-    await axios.get(changeIpUrl);
-    const instagramData =
-      instagramResponse.data.data.user.edge_owner_to_timeline_media.edges;
-    let imagesUrlArr = instagramData.map((item) => {
-      return item.node.thumbnail_resources[3].src;
-    });
-    const formatData = {
-      imagesData: imagesUrlArr,
-      accountId: instagramResponse.data.data.user.id,
-    };
-    res.status(200).json(formatData);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 app.post("/api/rateImage", async (req, res) => {
-  console.log(req);
-  // const {username, account_id, user_id} = req.body;
-  // if (username && account_id && user_id) {
-  //   res.status(201).json({"status": "success"})
-  // } else {
-  //   res.status(400).json({"message": "All field required"})
-  // }
+  const { username, account_id, user_id } = req.body;
+
+  if (username && account_id && user_id) {
+    const insertQuery = `
+      INSERT INTO sort.output_table (username, account_id, user_id)
+      VALUES (?, ?, ?);
+    `;
+    db.query(insertQuery, [username, account_id, user_id], (err, response) => {
+      if (err) {
+        console.error("DB error:", err);
+        res.status(500).json({ message: "Database error" });
+      } else {
+        res.status(201).json({ status: "success" });
+      }
+    });
+  } else {
+    res.status(400).json({ message: "All fields required" });
+  }
 });
 
 // fetch table data
