@@ -16,6 +16,7 @@ export const InstagramViewImages = () => {
         setCurrentShowing(userInfo.last_id);
     }, [userInfo])
     const slug = "86aacb40";
+    const slugFormUrl = window.location.pathname.replace('/', '');
     const getUserData = async () => {
         const [data, userInformation] = await Promise.all([fetchTableData(), fetchUserData(slug)]);
         setUsersData(data);
