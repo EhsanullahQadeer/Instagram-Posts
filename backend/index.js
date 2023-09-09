@@ -56,6 +56,7 @@ const updateUserQuery = async (slug, value) => {
 
 const userQuery = "SELECT * FROM users";
 const tableQuery = "SELECT * FROM sort.input_table";
+const outputQuery = "SELECT * FROM sort.output_table";
 
 app.get("/api/getImages", async (req, res) => {
   const { slug, value } = req.query;
@@ -64,13 +65,14 @@ app.get("/api/getImages", async (req, res) => {
 
   try {
     const data = await updateUserQuery(slug, value);
-    console.log(data)
     const response = await dbQueryAsync(userQuery);
     const findUserFromDB = response.find((item) => item.slug === slug);
     if (!findUserFromDB) {
       return res.status(400).json({ error: "User not found" });
     }
     const results = await dbQueryAsync(tableQuery);
+    const output_table = await dbQueryAsync(outputQuery);
+    const userOutputRecords = output_table.filter(item=> item.account_id === findUserFromDB.id);
     const username = results[data.value].username;
     const user_id = results[data.value].user_id;
     const instagramResponse = await axios({
@@ -95,7 +97,7 @@ app.get("/api/getImages", async (req, res) => {
       total_records: results.length,
       username: username,
       user_id: user_id,
-      // total_done: userOutputRecords.length,
+      total_done: userOutputRecords.length,
     };
     res.status(200).json(formatData);
   } catch (error) {

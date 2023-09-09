@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import '../App.css';
-import { loadImagesData, fetchUserData, fetchTableData, rateImage } from '../api';
+import { loadImagesData, rateImage } from '../api';
 
 let value = 0;
-console.log(value);
+let previousValue = 0;
 export const InstagramViewImages = () => {
     const [isFirstTime, setIsFirstTime] = useState(true);
     const [pBtnActive, setPBtnActive] = useState(false);
@@ -12,11 +12,8 @@ export const InstagramViewImages = () => {
     const [loading, setLoading] = useState(false);
     const [instagramData, setInstagramData] = useState([]);
     const [showingRecord, setShowingRecord] = useState(1);
-
-    const slug = "86aacb40";
     const slugFormUrl = window.location.pathname.replace('/', '');
-    const previousValue = localStorage.getItem('valueWhenClicked');
-
+    const slug = slugFormUrl || "86aacb40";
     useEffect(() => {
         setIsFirstTime(true);
         setRBtnActive(false);
@@ -27,14 +24,14 @@ export const InstagramViewImages = () => {
     useEffect(() => {
         let intervalId;
         const getData = async () => {
-            if (instagramData?.is_last) {
-                clearInterval(intervalId);
-                setTimer(false);
+            if (instagramData.total_records === instagramData.last_id) {
+            clearInterval(intervalId);
+            setTimer(false);
             } else {
                 value = value + 1;
                 const response = await loadImagesData(slug, value);
                 if (response) {
-                    if (value === response.last_id && value+1 !== Number(previousValue)) {
+                    if (value === response.last_id && previousValue < value) {
                         setShowingRecord(prev => prev + 1);
                     }
                     setInstagramData(response);
@@ -42,15 +39,12 @@ export const InstagramViewImages = () => {
                 }
             }
         };
-        if (!pBtnActive && timer && instagramData.last_id) {
-            intervalId = setInterval(getData, `${instagramData.change_time}00`);
+        if (!pBtnActive && timer) {
+            intervalId = setInterval(getData, `${instagramData.change_time}000`);
         } else {
             clearInterval(intervalId);
             setTimer(false);
         }
-        return () => {
-            clearInterval(intervalId);
-        };
     }, [pBtnActive, timer]);
 
     const handleOnClick = async () => {
@@ -77,7 +71,7 @@ export const InstagramViewImages = () => {
             }
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
-                // getPreviousUser();
+                getPreviousUser();
             }
         };
         window.addEventListener('keydown', handleKeywordAction);
@@ -90,7 +84,7 @@ export const InstagramViewImages = () => {
         if (value > 0) {
             const response = await loadImagesData(slug, value - 1);
             if (response) {
-                localStorage.setItem('valueWhenClicked', `${value}`);
+                previousValue = value;
                 value = value - 1;
                 setInstagramData(response);
                 setTimer(true);
@@ -117,7 +111,7 @@ export const InstagramViewImages = () => {
             </div> : loading ? <div className='header'>loading....</div> : <div>
                 <div className='menu-main'>
                     <div className='menu1'>
-                        <button onClick={getPreviousUser} className='menu-btn'>{'<'}</button>
+                        <button disabled={true} onClick={getPreviousUser} className='menu-btn'>{'<'}</button>
                         <button onClick={() => { setPBtnActive(!pBtnActive); setTimer(true) }} className={`menu-btn ${pBtnActive && 'btn-active'}`}>P</button>
                     </div>
                     <div className='menu2'>
