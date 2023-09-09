@@ -24,7 +24,7 @@ export const InstagramViewImages = () => {
     useEffect(() => {
         let intervalId;
         const getData = async () => {
-            if (instagramData.total_records === instagramData.last_id) {
+            if (instagramData.last_id >= instagramData.total_records) {
             clearInterval(intervalId);
             setTimer(false);
             } else {
