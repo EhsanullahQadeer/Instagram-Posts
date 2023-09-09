@@ -111,7 +111,7 @@ export const InstagramViewImages = () => {
             </div> : loading ? <div className='header'>loading....</div> : <div>
                 <div className='menu-main'>
                     <div className='menu1'>
-                        <button disabled={true} onClick={getPreviousUser} className='menu-btn'>{'<'}</button>
+                        <button disabled={value <= 0} onClick={getPreviousUser} className='menu-btn'>{'<'}</button>
                         <button onClick={() => { setPBtnActive(!pBtnActive); setTimer(true) }} className={`menu-btn ${pBtnActive && 'btn-active'}`}>P</button>
                     </div>
                     <div className='menu2'>
