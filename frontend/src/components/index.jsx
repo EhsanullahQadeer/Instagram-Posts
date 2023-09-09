@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import '../App.css';
 import { loadImagesData, fetchUserData, fetchTableData, rateImage } from '../api';
 
+let value = 0;
+console.log(value);
 export const InstagramViewImages = () => {
     const [isFirstTime, setIsFirstTime] = useState(true);
     const [pBtnActive, setPBtnActive] = useState(false);
@@ -9,44 +11,39 @@ export const InstagramViewImages = () => {
     const [timer, setTimer] = useState(false);
     const [loading, setLoading] = useState(false);
     const [instagramData, setInstagramData] = useState([]);
-    const [usersData, setUsersData] = useState([]);
-    const [userInfo, setUserInfo] = useState({});
-    const [currentShowing, setCurrentShowing] = useState(userInfo.last_id);
-    useEffect(() => {
-        setCurrentShowing(userInfo.last_id);
-    }, [userInfo])
+    const [showingRecord, setShowingRecord] = useState(1);
+
     const slug = "86aacb40";
     const slugFormUrl = window.location.pathname.replace('/', '');
-    const getUserData = async () => {
-        const [data, userInformation] = await Promise.all([fetchTableData(), fetchUserData(slug)]);
-        setUsersData(data);
-        setUserInfo(userInformation);
-    }
+    const previousValue = localStorage.getItem('valueWhenClicked');
+
     useEffect(() => {
         setIsFirstTime(true);
         setRBtnActive(false);
         setPBtnActive(false);
         setTimer(false);
-        getUserData();
     }, []);
 
     useEffect(() => {
         let intervalId;
         const getData = async () => {
-            if (usersData[instagramData.last_id] === usersData.length) {
+            if (instagramData?.is_last) {
                 clearInterval(intervalId);
                 setTimer(false);
             } else {
-                const response = await loadImagesData(usersData[instagramData.last_id].username, slug, 'next');
+                value = value + 1;
+                const response = await loadImagesData(slug, value);
                 if (response) {
-                    setCurrentShowing(perv => perv + 1);
+                    if (value === response.last_id && value+1 !== Number(previousValue)) {
+                        setShowingRecord(prev => prev + 1);
+                    }
                     setInstagramData(response);
                     setRBtnActive(false);
                 }
             }
         };
         if (!pBtnActive && timer && instagramData.last_id) {
-            intervalId = setInterval(getData, `${userInfo.change_time}000`);
+            intervalId = setInterval(getData, `${instagramData.change_time}00`);
         } else {
             clearInterval(intervalId);
             setTimer(false);
@@ -59,8 +56,9 @@ export const InstagramViewImages = () => {
     const handleOnClick = async () => {
         setLoading(true);
         setIsFirstTime(false);
-        const response = await loadImagesData(usersData[userInfo?.last_id]?.username, slug, 'next');
+        const response = await loadImagesData(slug, 0);
         if (response) {
+            value = response.last_id;
             setInstagramData(response);
             setTimer(true);
         }
@@ -79,37 +77,38 @@ export const InstagramViewImages = () => {
             }
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
-                getPreviousUser();
+                // getPreviousUser();
             }
         };
         window.addEventListener('keydown', handleKeywordAction);
         return () => {
             window.removeEventListener('keydown', handleKeywordAction);
         };
-    }, [pBtnActive, rBtnActive, currentShowing]);
+    }, [pBtnActive, rBtnActive]);
 
     const getInstaData = async () => {
-        const index = currentShowing === 0 ? usersData.length - 1 : currentShowing - 1;
-        const response = await loadImagesData(usersData[index]?.username, slug, 'previous');
-        if (response) {
-            setInstagramData(response);
-            setTimer(true);
+        if (value > 0) {
+            const response = await loadImagesData(slug, value - 1);
+            if (response) {
+                localStorage.setItem('valueWhenClicked', `${value}`);
+                value = value - 1;
+                setInstagramData(response);
+                setTimer(true);
+            }
         }
     }
 
     const getPreviousUser = async () => {
         await getInstaData();
-        await setCurrentShowing(perv => perv - 1);
         setRBtnActive(false);
     };
     const getProfilesShowed = () => {
-        const value = ((instagramData.last_id) / usersData.length) * 100;
+        const value = ((instagramData.last_id) / instagramData.total_records) * 100;
         return parseInt(value);
     }
-    const currentObject = usersData[currentShowing];
     const handleClickOnR = async () => {
         setRBtnActive(true);
-        await rateImage(currentObject, instagramData?.accountId);
+        await rateImage(instagramData);
     }
     return (
         <>
@@ -123,11 +122,11 @@ export const InstagramViewImages = () => {
                     </div>
                     <div className='menu2'>
                         <button onClick={handleClickOnR} className={`menu-btn ${rBtnActive && 'btn-active'}`}>R</button>
-                        <div>Profiles showed: {instagramData?.last_id}</div>
-                        <div>%: {getProfilesShowed('percent')}</div>
-                        <div>ID: {instagramData?.accountId}</div>
-                        <div>DB: 16290</div>
-                        <div>Total done: 1</div>
+                        <div>Profiles showed: {showingRecord}</div>
+                        <div>%: {getProfilesShowed()}</div>
+                        <div>ID: {instagramData?.user_id}</div>
+                        <div>DB: {instagramData.last_id}</div>
+                        <div>Total done: {instagramData.total_done}</div>
                     </div>
                 </div>
                 <div className='img-section'>

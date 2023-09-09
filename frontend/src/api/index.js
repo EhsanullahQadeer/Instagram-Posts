@@ -1,32 +1,10 @@
 import axios from 'axios';
-
-export const fetchTableData = async () => {
-  try {
-      const response = await axios.get('http://localhost:3001/api/input-table');
-      return response.data;
-  } catch (error) {
-      console.error('Error fetching data:', error);
-  }
-};
-export const fetchUserData = async (slug) => {
-  try {
-      const response = await axios.get('http://localhost:3001/api/userdata', {
-        params: {
-          slug: slug,
-        }
-      });
-      return response.data;
-  } catch (error) {
-      console.error('Error fetching data:', error);
-  }
-};
-export const loadImagesData = async (user, slug, action) => {
+export const loadImagesData = async (slug, value) => {
   try {
       const response = await axios.get('http://localhost:3001/api/getImages', {
         params: {
-          user: user,
           slug: slug,
-          action: action,
+          value: value,
         },
       });
       return response.data;
@@ -34,12 +12,12 @@ export const loadImagesData = async (user, slug, action) => {
       console.error('Error fetching data:', error);
   }
 };
-export const rateImage = async (data, accountId) => {
+export const rateImage = async (data) => {
   try {
       const response = await axios.post('http://localhost:3001/api/rateImage', {
         username: data.username,
         user_id: data.user_id,
-        account_id: accountId,
+        account_id: data.accountId,
       });
       return response.data;
   } catch (error) {
