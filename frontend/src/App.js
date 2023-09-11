@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     if (slug) {
       setIsLoading(true);
-     checkUserAvailble(slug)
+      checkUserAvailble(slug)
         .then((res) => {
           setIsUserAvailble(res);
           setIsLoading(false);

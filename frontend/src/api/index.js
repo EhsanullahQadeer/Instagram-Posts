@@ -3,7 +3,7 @@ let backendUrl = "http://localhost:3001";
 
 export const loadImagesData = async (lastId, userId, isUpdateLastId) => {
   try {
-    const response = await axios.get("http://localhost:3001/api/getImages", {
+    const response = await axios.get(backendUrl + "/api/getImages", {
       params: {
         lastId: lastId,
         userId: userId,
@@ -16,9 +16,9 @@ export const loadImagesData = async (lastId, userId, isUpdateLastId) => {
   }
 };
 export const rateImage = async (username, accountId, user_id) => {
-  debugger
+  debugger;
   try {
-    const response = await axios.post("http://localhost:3001/api/rateImage", {
+    const response = await axios.post(backendUrl + "/api/rateImage", {
       username: username,
       account_id: accountId,
       user_id: user_id,
@@ -29,7 +29,6 @@ export const rateImage = async (username, accountId, user_id) => {
   }
 };
 // check user availble
-
 export const checkUserAvailble = async (slug) => {
   try {
     const response = await axios.get(backendUrl + `/getUserDetails/${slug}`);
