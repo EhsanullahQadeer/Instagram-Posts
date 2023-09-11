@@ -39,7 +39,7 @@ export const InstagramViewImages = ({ useData }) => {
         );
         setInstagramData(response);
         setRBtnActive(false);
-        if (useData.last_id > lastIdWhenClickedOnPrevious) {
+        if (reservelastIdToPre > lastIdWhenClickedOnPrevious) {
           setShowingRecord((pre) => (pre += 1));
         }
       }
@@ -53,6 +53,7 @@ export const InstagramViewImages = ({ useData }) => {
 
   // Start click
   const handleOnClick = async () => {
+    lastIdWhenClickedOnPrevious = 0;
     setLoading(true);
     setIsFirstTime(false);
     useData.last_id += 1;
@@ -86,7 +87,7 @@ export const InstagramViewImages = ({ useData }) => {
 
   const getPreviousUser = async () => {
     setTimer(false);
-    lastIdWhenClickedOnPrevious = reservelastIdToPre;
+    lastIdWhenClickedOnPrevious = useData.last_id;
     reservelastIdToPre -= 1;
     const response = await loadImagesData(
       reservelastIdToPre,
