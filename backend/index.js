@@ -28,12 +28,21 @@ db.connect((err) => {
     console.log("Connected to the database");
   }
 });
-
-// const changeIpUrl ="http://176.9.113.112:11126/changeip/client/23108983551657110673";
-// await axios.get(changeIpUrl);
+const changeIpUrl =
+  "http://176.9.113.112:11126/changeip/client/23108983551657110673";
 
 const dbQueryAsync = promisify(db.query.bind(db));
 const agent = new HttpsProxyAgent("http://user26:8PFNYUSu@176.9.113.112:11026");
+
+let changeTime;
+let isChangeIp = true;
+async function triggerChangeIp() {
+  isChangeIp = false;
+  setTimeout(async () => {
+    await axios.get(changeIpUrl);
+    isChangeIp = true;
+  }, [changeTime]);
+}
 
 app.get("/api/getImages", async (req, res) => {
   const { lastId, userId, isUpdateLastId } = req.query;
@@ -42,8 +51,7 @@ app.get("/api/getImages", async (req, res) => {
       ? dbQueryAsync(
           `UPDATE users SET last_id = ${lastId} WHERE id = ${userId}`
         )
-      : Promise.resolve(); // Resolve immediately if lastId is not provided
-
+      : Promise.resolve();
     const queryPromise = dbQueryAsync(
       `SELECT COUNT(*) AS count FROM output_table WHERE user_id = ?`,
       [userId]
@@ -80,6 +88,11 @@ app.get("/api/getImages", async (req, res) => {
       imagesData: imagesUrlArr,
       username: username,
     };
+
+    if (isChangeIp) {
+      triggerChangeIp();
+    }
+
     res.status(200).json(formatData);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -97,6 +110,7 @@ app.get("/getUserDetails/:slug", async (req, res) => {
   const totalRecordsQuery = ` SELECT COUNT(*) AS count FROM input_table`;
   const totalRecords = await dbQueryAsync(totalRecordsQuery);
   let data = { ...selectResults[0], ...totalRecords[0] };
+  changeTime = parseInt(data.delay_time + "000");
   res.status(200).json(data);
 });
 

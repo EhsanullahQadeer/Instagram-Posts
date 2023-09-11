@@ -11,9 +11,7 @@ export const loadImagesData = async (lastId, userId, isUpdateLastId) => {
       },
     });
     return response.data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+  } catch (error) {}
 };
 export const rateImage = async (username, accountId, user_id) => {
   try {
@@ -23,9 +21,7 @@ export const rateImage = async (username, accountId, user_id) => {
       user_id: user_id,
     });
     return response.data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+  } catch (error) {}
 };
 // check user availble
 export const checkUserAvailble = async (slug) => {

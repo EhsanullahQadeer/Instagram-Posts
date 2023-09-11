@@ -23,9 +23,9 @@
   height: 100vh;
   margin: 8px;
 }
-.img-block:nth-child(7),
-.img-block:nth-child(8),
-.img-block:nth-child(9) {
+.img-block:nth-child(10),
+.img-block:nth-child(11),
+.img-block:nth-child(12) {
     margin-bottom: 8px;
 }
 

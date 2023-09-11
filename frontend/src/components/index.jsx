@@ -28,16 +28,25 @@ export const InstagramViewImages = ({ useData }) => {
           useData.last_id += 1;
         }
         reservelastIdToPre += 1;
-        const response = await loadImagesData(
+        loadImagesData(
           reservelastIdToPre,
           useData.id,
           useData.last_id == reservelastIdToPre
-        );
-        setInstagramData(response);
-        setRBtnActive(false);
-        if (reservelastIdToPre > lastIdWhenClickedOnPrevious) {
-          setShowingRecord((pre) => (pre += 1));
-        }
+        )
+          .then((response) => {
+            setInstagramData(response);
+            setRBtnActive(false);
+            if (reservelastIdToPre > lastIdWhenClickedOnPrevious) {
+              setShowingRecord((pre) => (pre += 1));
+            }
+          })
+          .catch(() => {
+            setInstagramData([]);
+            setRBtnActive(false);
+            if (reservelastIdToPre > lastIdWhenClickedOnPrevious) {
+              setShowingRecord((pre) => (pre += 1));
+            }
+          });
       }
     };
     if (!pBtnActive && timer) {
@@ -122,12 +131,10 @@ export const InstagramViewImages = ({ useData }) => {
   }
   //   update images src
   useEffect(() => {
-    if (instagramData?.imagesData) {
       const imageElements = document.querySelectorAll(".img-styled");
       imageElements.forEach((element, index) => {
-        element.src = instagramData.imagesData[index];
+        element.src = instagramData?.imagesData[index];
       });
-    }
   }, [instagramData]);
 
   return (
@@ -168,11 +175,11 @@ export const InstagramViewImages = ({ useData }) => {
               >
                 R
               </button>
-                <div>Profiles showed: {showingRecord}</div>
-                <div>%: {getProfilesShowed()}</div>
-                <div>ID: {instagramData?.accountId}</div>
-                <div>DB: {useData.last_id}</div>
-                <div>Total done: {instagramData?.totalDone}</div>
+              <div>Profiles showed: {showingRecord}</div>
+              <div>%: {getProfilesShowed()}</div>
+              <div>ID: {instagramData?.accountId}</div>
+              <div>DB: {useData.last_id}</div>
+              <div>Total done: {instagramData?.totalDone}</div>
             </div>
           </div>
           <div className="img-section">
