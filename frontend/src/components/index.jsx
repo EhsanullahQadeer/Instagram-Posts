@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
-import { loadImagesData, rateImage, checkUserAvailble } from "../api";
+import { loadImagesData, rateImage } from "../api";
 
 let reservelastIdToPre = 0;
 let intervalId;
@@ -14,10 +14,6 @@ export const InstagramViewImages = ({ useData }) => {
   const [showingRecord, setShowingRecord] = useState(1);
 
   useEffect(() => {
-    setIsFirstTime(true);
-    setRBtnActive(false);
-    setPBtnActive(false);
-    setTimer(false);
     reservelastIdToPre = useData.last_id;
   }, []);
 
@@ -111,7 +107,7 @@ export const InstagramViewImages = ({ useData }) => {
     images.push(
       <div key={i} className="img-block">
         <img
-          crossorigin="anonymous"
+          crossOrigin="anonymous"
           src=""
           alt="insta-img"
           className="img-styled"
