@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
-import { loadImagesData, rateImage, checkUserAvailble } from "../api";
+import { loadImagesData, rateImage } from "../api";
 
 let reservelastIdToPre = 0;
 let intervalId;
+let lastIdWhenClickedOnPrevious = 0;
 export const InstagramViewImages = ({ useData }) => {
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [pBtnActive, setPBtnActive] = useState(false);
@@ -34,11 +35,13 @@ export const InstagramViewImages = ({ useData }) => {
         const response = await loadImagesData(
           reservelastIdToPre,
           useData.id,
-          useData.last_id == reservelastIdToPre ? true : false
+          useData.last_id == reservelastIdToPre
         );
         setInstagramData(response);
         setRBtnActive(false);
-        setShowingRecord((pre) => (pre += 1));
+        if (useData.last_id > lastIdWhenClickedOnPrevious) {
+          setShowingRecord((pre) => (pre += 1));
+        }
       }
     };
     if (!pBtnActive && timer) {
@@ -83,6 +86,7 @@ export const InstagramViewImages = ({ useData }) => {
 
   const getPreviousUser = async () => {
     setTimer(false);
+    lastIdWhenClickedOnPrevious = reservelastIdToPre;
     reservelastIdToPre -= 1;
     const response = await loadImagesData(
       reservelastIdToPre,
@@ -167,11 +171,11 @@ export const InstagramViewImages = ({ useData }) => {
               >
                 R
               </button>
-              <div>Profiles showed: {showingRecord}</div>
-              <div>%: {getProfilesShowed()}</div>
-              <div>ID: {instagramData?.accountId}</div>
-              <div>DB: {useData.last_id}</div>
-              <div>Total done: {instagramData?.totalDone}</div>
+                <div>Profiles showed: {showingRecord}</div>
+                <div>%: {getProfilesShowed()}</div>
+                <div>ID: {instagramData?.accountId}</div>
+                <div>DB: {useData.last_id}</div>
+                <div>Total done: {instagramData?.totalDone}</div>
             </div>
           </div>
           <div className="img-section">
