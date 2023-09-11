@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { InstagramViewImages } from "./components";
 import { checkUserAvailble } from "./api";
-
+import { ErrorBoundry } from "./components/ErrorBoundry";
 function App() {
   const slug = window.location.pathname.replace("/", "");
   const [isUserAvailble, setIsUserAvailble] = useState(false);
@@ -26,10 +26,10 @@ function App() {
     <div className="header">loading....</div>
   ) : !slug ? (
     <>
-      <h1>page not found</h1>
+      <ErrorBoundry isNotFound={true}/>
     </>
   ) : !isUserAvailble ? (
-    <h1>user not found</h1>
+    <ErrorBoundry isNotFound={false}/>
   ) : (
     <>
       <InstagramViewImages useData={isUserAvailble} />

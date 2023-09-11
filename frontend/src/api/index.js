@@ -16,7 +16,6 @@ export const loadImagesData = async (lastId, userId, isUpdateLastId) => {
   }
 };
 export const rateImage = async (username, accountId, user_id) => {
-  debugger;
   try {
     const response = await axios.post(backendUrl + "/api/rateImage", {
       username: username,
